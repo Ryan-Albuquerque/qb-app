@@ -1,21 +1,17 @@
 // src/app/home/page.tsx
-'use client';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel';
+"use client";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { CardCarousel } from "@/components/ui/carousel";
 
 export default function HomePage() {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Navbar */}
-      <nav className="bg-white shadow-lg fixed w-full z-10 top-0">
+      <nav className="bg-white shadow-lg w-full z-10 top-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
@@ -54,10 +50,7 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* Carousel Banner Section */}
-      <section className="pt-20 flex justify-center items-center">
-        <CarouselDemo />
-      </section>
+      <CardCarousel />
 
       {/* Get Started Button Section */}
       <section className="mt-12 w-full text-center">
@@ -71,7 +64,7 @@ export default function HomePage() {
           <Button
             className="bg-green-500 hover:bg-green-700 text-white py-3 px-6 rounded-lg text-lg"
             onClick={() => {
-              window.location.href = '/qb/choice-category';
+              router.push("/qb/choice-category");
             }}
           >
             Get Started Now
@@ -127,12 +120,12 @@ export default function HomePage() {
           <p className="text-sm">
             <a href="/faq" className="hover:underline">
               FAQ
-            </a>{' '}
-            |{' '}
+            </a>{" "}
+            |{" "}
             <a href="/contact" className="hover:underline">
               Contact Us
-            </a>{' '}
-            |{' '}
+            </a>{" "}
+            |{" "}
             <a href="/about" className="hover:underline">
               About Us
             </a>
@@ -143,54 +136,5 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
-  );
-}
-
-function CarouselDemo() {
-  return (
-    <Carousel className="w-full max-w-3xl">
-      <CarouselContent>
-        {/* Slide 1 */}
-        <CarouselItem>
-          <div className="p-1">
-            <Card>
-              <CardContent className="flex aspect-square items-center justify-center p-6 bg-blue-500">
-                <span className="text-4xl font-semibold text-white">
-                  Welcome to SAT Solver!
-                </span>
-              </CardContent>
-            </Card>
-          </div>
-        </CarouselItem>
-
-        {/* Slide 2 */}
-        <CarouselItem>
-          <div className="p-1">
-            <Card>
-              <CardContent className="flex aspect-square items-center justify-center p-6 bg-green-500">
-                <span className="text-4xl font-semibold text-white">
-                  Improve Your SAT Scores Now!
-                </span>
-              </CardContent>
-            </Card>
-          </div>
-        </CarouselItem>
-
-        {/* Slide 3 */}
-        <CarouselItem>
-          <div className="p-1">
-            <Card>
-              <CardContent className="flex aspect-square items-center justify-center p-6 bg-yellow-500">
-                <span className="text-4xl font-semibold text-white">
-                  Try Our New Timed Practice Mode!
-                </span>
-              </CardContent>
-            </Card>
-          </div>
-        </CarouselItem>
-      </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
   );
 }

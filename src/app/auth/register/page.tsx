@@ -1,27 +1,27 @@
-'use client';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import Link from 'next/link';
+"use client";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import Link from "next/link";
 
 type FormValues = {
   document: string; // CPF
-  name: string; // Name
+  name: string; // Nome
   email: string; // Email
-  phone: string; // Phone number
-  password: string; // Password
-  confirmPassword: string; // Confirm Password
+  phone: string; // Número de telefone
+  password: string; // Senha
+  confirmPassword: string; // Confirmar Senha
 };
 
-// CPF validation pattern for Brazilian document number (only numbers)
-const cpfPattern = /^\d{11}$/; // Only 11 digits
+// Padrão de validação para CPF (apenas números)
+const cpfPattern = /^\d{11}$/; // Apenas 11 dígitos
 
-// Email validation pattern
+// Padrão de validação de email
 const emailPattern = /^\S+@\S+\.\S+$/;
 
-// Phone validation pattern (Brazilian format)
-const phonePattern = /^\d{10,11}$/; // 10 or 11 digits
+// Padrão de validação de telefone (formato brasileiro)
+const phonePattern = /^\d{10,11}$/; // 10 ou 11 dígitos
 
 export default function Register() {
   const router = useRouter();
@@ -32,41 +32,41 @@ export default function Register() {
     getValues,
   } = useForm<FormValues>();
 
-  // Function that runs on form submit
+  // Função que é executada ao enviar o formulário
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    console.log('Registering with:', data);
-    // Proceed with registration logic, such as an API call
-    router.push('/plan/try-upgrade-plan');
+    console.log("Registrando com:", data);
+    // Prosseguir com a lógica de registro, como uma chamada de API
+    router.push("/plan/try-upgrade-plan");
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
       <Card className="max-w-md w-full bg-white p-6 shadow-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Registrar</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Document (CPF) Input */}
+          {/* Campo de Documento (CPF) */}
           <div className="mb-4">
             <label
               htmlFor="document"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              CPF (Document)
+              CPF
             </label>
             <input
               type="text"
               id="document"
-              maxLength={11} // Only 11 digits allowed
-              {...register('document', {
-                required: 'CPF is required',
+              maxLength={11} // Apenas 11 dígitos permitidos
+              {...register("document", {
+                required: "O CPF é obrigatório",
                 pattern: {
                   value: cpfPattern,
-                  message: 'Invalid CPF format. Use 11 digits.',
+                  message: "Formato de CPF inválido. Use 11 dígitos.",
                 },
               })}
               className={`w-full px-4 py-2 border ${
-                errors.document ? 'border-red-500' : 'border-gray-300'
+                errors.document ? "border-red-500" : "border-gray-300"
               } rounded-md shadow-sm focus:outline-none focus:border-blue-500`}
-              placeholder="Enter your CPF"
+              placeholder="Digite seu CPF"
             />
             {errors.document && (
               <p className="text-red-500 text-sm mt-2">
@@ -75,29 +75,29 @@ export default function Register() {
             )}
           </div>
 
-          {/* Name Input */}
+          {/* Campo de Nome */}
           <div className="mb-4">
             <label
               htmlFor="name"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Name
+              Nome
             </label>
             <input
               type="text"
               id="name"
-              {...register('name', { required: 'Name is required' })}
+              {...register("name", { required: "O nome é obrigatório" })}
               className={`w-full px-4 py-2 border ${
-                errors.name ? 'border-red-500' : 'border-gray-300'
+                errors.name ? "border-red-500" : "border-gray-300"
               } rounded-md shadow-sm focus:outline-none focus:border-blue-500`}
-              placeholder="Enter your name"
+              placeholder="Digite seu nome"
             />
             {errors.name && (
               <p className="text-red-500 text-sm mt-2">{errors.name.message}</p>
             )}
           </div>
 
-          {/* Email Input */}
+          {/* Campo de Email */}
           <div className="mb-4">
             <label
               htmlFor="email"
@@ -108,17 +108,17 @@ export default function Register() {
             <input
               type="email"
               id="email"
-              {...register('email', {
-                required: 'Email is required',
+              {...register("email", {
+                required: "O email é obrigatório",
                 pattern: {
                   value: emailPattern,
-                  message: 'Invalid email format',
+                  message: "Formato de email inválido",
                 },
               })}
               className={`w-full px-4 py-2 border ${
-                errors.email ? 'border-red-500' : 'border-gray-300'
+                errors.email ? "border-red-500" : "border-gray-300"
               } rounded-md shadow-sm focus:outline-none focus:border-blue-500`}
-              placeholder="Enter your email"
+              placeholder="Digite seu email"
             />
             {errors.email && (
               <p className="text-red-500 text-sm mt-2">
@@ -127,29 +127,30 @@ export default function Register() {
             )}
           </div>
 
-          {/* Phone Input */}
+          {/* Campo de Telefone */}
           <div className="mb-4">
             <label
               htmlFor="phone"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Phone
+              Telefone
             </label>
             <input
               type="text"
               id="phone"
-              maxLength={11} // Maximum length for Brazilian phone number
-              {...register('phone', {
-                required: 'Phone number is required',
+              maxLength={11} // Comprimento máximo para número de telefone brasileiro
+              {...register("phone", {
+                required: "O número de telefone é obrigatório",
                 pattern: {
                   value: phonePattern,
-                  message: 'Invalid phone format. Use 10 or 11 digits.',
+                  message:
+                    "Formato de telefone inválido. Use 10 ou 11 dígitos.",
                 },
               })}
               className={`w-full px-4 py-2 border ${
-                errors.phone ? 'border-red-500' : 'border-gray-300'
+                errors.phone ? "border-red-500" : "border-gray-300"
               } rounded-md shadow-sm focus:outline-none focus:border-blue-500`}
-              placeholder="Enter your phone number"
+              placeholder="Digite seu número de telefone"
             />
             {errors.phone && (
               <p className="text-red-500 text-sm mt-2">
@@ -158,28 +159,28 @@ export default function Register() {
             )}
           </div>
 
-          {/* Password Input */}
+          {/* Campo de Senha */}
           <div className="mb-4">
             <label
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Password
+              Senha
             </label>
             <input
               type="password"
               id="password"
-              {...register('password', {
-                required: 'Password is required',
+              {...register("password", {
+                required: "A senha é obrigatória",
                 minLength: {
                   value: 8,
-                  message: 'Password must be at least 8 characters long',
+                  message: "A senha deve ter pelo menos 8 caracteres",
                 },
               })}
               className={`w-full px-4 py-2 border ${
-                errors.password ? 'border-red-500' : 'border-gray-300'
+                errors.password ? "border-red-500" : "border-gray-300"
               } rounded-md shadow-sm focus:outline-none focus:border-blue-500`}
-              placeholder="Enter your password"
+              placeholder="Digite sua senha"
             />
             {errors.password && (
               <p className="text-red-500 text-sm mt-2">
@@ -188,28 +189,28 @@ export default function Register() {
             )}
           </div>
 
-          {/* Confirm Password Input */}
+          {/* Campo de Confirmar Senha */}
           <div className="mb-4">
             <label
               htmlFor="confirmPassword"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Confirm Password
+              Confirmar Senha
             </label>
             <input
               type="password"
               id="confirmPassword"
-              {...register('confirmPassword', {
-                required: 'Please confirm your password',
+              {...register("confirmPassword", {
+                required: "Por favor, confirme sua senha",
                 validate: (value) => {
-                  const { password } = getValues(); // Access password field value
-                  return value === password || 'Passwords do not match';
+                  const { password } = getValues(); // Acessar o valor do campo senha
+                  return value === password || "As senhas não correspondem";
                 },
               })}
               className={`w-full px-4 py-2 border ${
-                errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                errors.confirmPassword ? "border-red-500" : "border-gray-300"
               } rounded-md shadow-sm focus:outline-none focus:border-blue-500`}
-              placeholder="Confirm your password"
+              placeholder="Confirme sua senha"
             />
             {errors.confirmPassword && (
               <p className="text-red-500 text-sm mt-2">
@@ -218,19 +219,22 @@ export default function Register() {
             )}
           </div>
 
-          {/* Submit Button */}
+          {/* Botão de Enviar */}
           <Button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white w-full py-2 rounded-md"
+            className="bg-green-500 hover:bg-green-700 text-white w-full py-2 rounded-md"
           >
-            Register
+            Registrar
           </Button>
         </form>
 
-        {/* Additional Links */}
+        {/* Links Adicionais */}
         <div className="mt-4 text-center">
-          <Link href="/auth/login" className="text-sm text-blue-500 hover:underline">
-            Already have an account? Login
+          <Link
+            href="/auth/login"
+            className="text-sm text-green-500 hover:underline"
+          >
+            Já tem uma conta? Fazer login
           </Link>
         </div>
       </Card>
