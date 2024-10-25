@@ -15,36 +15,17 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-blue-600">
-                SAT Solver
+              <Link href="/" className="text-2xl font-bold text-green-600">
+                QB
               </Link>
             </div>
-            <div className="hidden md:flex space-x-4">
-              <Link href="/" className="text-gray-800 hover:text-blue-600">
-                Home
-              </Link>
+            <div className="flex space-x-4">
               <Link
-                href="/features"
-                className="text-gray-800 hover:text-blue-600"
+                href="/qb/profile"
+                className="text-gray-800 hover:text-green-600"
               >
-                Features
+                Perfil
               </Link>
-              <Link
-                href="/pricing"
-                className="text-gray-800 hover:text-blue-600"
-              >
-                Pricing
-              </Link>
-              <Link
-                href="/contact"
-                className="text-gray-800 hover:text-blue-600"
-              >
-                Contact
-              </Link>
-            </div>
-            {/* Mobile Menu */}
-            <div className="md:hidden">
-              <button className="text-gray-800 focus:outline-none">Menu</button>
             </div>
           </div>
         </div>
@@ -56,27 +37,27 @@ export default function HomePage() {
       <section className="mt-12 w-full text-center">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-gray-800 mb-4">
-            Ready to Improve Your SAT Score?
+            Pronto para melhorar sua nota da escola ou do vestibular?
           </h2>
           <p className="text-lg text-gray-600 mb-8">
-            Get started with solving SAT questions and track your progress!
+            Comece resolvendo questões e monitorar seu progresso!
           </p>
           <Button
-            className="bg-green-500 hover:bg-green-700 text-white py-3 px-6 rounded-lg text-lg"
+            className="bg-green-500 hover:bg-green-700 text-white p-6 rounded-lg text-lg"
             onClick={() => {
               router.push("/qb/choice-category");
             }}
           >
-            Get Started Now
+            Começar agora
           </Button>
         </div>
       </section>
 
       {/* Last Sessions of Resolution Questions Section */}
-      <section className="mt-8 w-full">
+      <section className="mt-16 w-full">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6">
-            Last Sessions of Resolution
+          <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+            Ultimas sessões de respostas
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -86,27 +67,10 @@ export default function HomePage() {
                 Session 1: Math Practice
               </h3>
               <p className="text-gray-600 mb-4">Completed on Oct 10, 2024</p>
-              <Button className="bg-blue-500 text-white py-2 w-full">
-                Resume Session
-              </Button>
-            </Card>
-
-            <Card className="bg-white p-6 shadow-lg rounded-md">
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                Session 2: Verbal Practice
-              </h3>
-              <p className="text-gray-600 mb-4">Completed on Oct 12, 2024</p>
-              <Button className="bg-blue-500 text-white py-2 w-full">
-                Resume Session
-              </Button>
-            </Card>
-
-            <Card className="bg-white p-6 shadow-lg rounded-md">
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                Session 3: Full Test Practice
-              </h3>
-              <p className="text-gray-600 mb-4">Completed on Oct 14, 2024</p>
-              <Button className="bg-blue-500 text-white py-2 w-full">
+              <Button
+                onClick={() => router.push("/qb/last-solved")}
+                className="bg-green-400 hover:bg-green-600 text-white p-4 w-full"
+              >
                 Resume Session
               </Button>
             </Card>
@@ -123,15 +87,15 @@ export default function HomePage() {
             </a>{" "}
             |{" "}
             <a href="/contact" className="hover:underline">
-              Contact Us
+              Fale conosco
             </a>{" "}
             |{" "}
-            <a href="/about" className="hover:underline">
-              About Us
+            <a href="/" className="hover:underline">
+              Sobre nós
             </a>
           </p>
           <p className="mt-4 text-xs">
-            &copy; {new Date().getFullYear()} SAT Solver. All Rights Reserved.
+            &copy; {new Date().getFullYear()} QB. Todos os direitos reservados.
           </p>
         </div>
       </footer>
