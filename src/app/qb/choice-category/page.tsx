@@ -8,6 +8,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+
+interface Node {
+  label: string;
+  checked: boolean;
+  childrenNodes: Node[];
+  parent: Node | null;
+  isOpen: boolean;
+}
 
 const subjectData: Record<string, unknown> = {
   Science: {
@@ -48,18 +57,56 @@ const availableYears = [
 const difficulties = ["Fácil", "Médio", "Difícil"];
 
 export default function Categories() {
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+  const [selectedSubjects, setSelectedSubjects] = useState<Node[]>([]);
   const [selectedYears, setSelectedYears] = useState<number[]>([]); // Pré-selecionando os últimos 3 anos
   const [selectedDifficulties, setSelectedDifficulties] = useState<string[]>(
     []
-  ); // Pré-selecionando "Médio"
+  );
+  const [parsedSubjects, setParsedSubjects] = useState<string[]>([]); // Pré-selecion
+
+  const router = useRouter();
 
   useEffect(() => {
-    console.log("Itens selecionados em categorias:", selectedSubjects);
-    console.log("Anos selecionados:", selectedYears);
-    console.log("Dificuldades selecionadas:", selectedDifficulties);
-  }, [selectedSubjects, selectedYears, selectedDifficulties]);
+    const collectHighestLevelSelections = (nodes: Node[]) => {
+      const highestLevels: string[] = [];
 
+      const isNodeValidForSelection = (node: Node) => {
+        let current: Node | null = node;
+        while (current) {
+          if (highestLevels.includes(current.label)) return false;
+          current = current.parent;
+        }
+        return true;
+      };
+
+      const traverseNodes = (nodes: Node[]) => {
+        nodes.forEach((node) => {
+          if (node.checked) {
+            const allChildrenChecked = node.childrenNodes.every(
+              (child) => child.checked
+            );
+
+            if (isNodeValidForSelection(node)) {
+              highestLevels.push(node.label);
+            }
+
+            if (!allChildrenChecked) {
+              node.childrenNodes.forEach((child) => {
+                if (child.checked && !highestLevels.includes(child.label)) {
+                  highestLevels.push(child.label);
+                }
+              });
+            }
+          }
+          traverseNodes(node.childrenNodes);
+        });
+      };
+
+      traverseNodes(nodes);
+      setParsedSubjects(highestLevels);
+    };
+    collectHighestLevelSelections(selectedSubjects);
+  }, [setSelectedSubjects, selectedSubjects]);
   const toggleYearSelection = (year: number) => {
     setSelectedYears((prev) =>
       prev.includes(year) ? prev.filter((y) => y !== year) : [...prev, year]
@@ -144,31 +191,31 @@ export default function Categories() {
       </div>
 
       {/* Renderiza o componente NestedCheckbox */}
-      <NestedCheckbox data={subjectData} setSelected={setSelectedSubjects} />
-
-      {/* Exibe as seleções */}
-      <div className="mt-6 p-4 bg-gray-100 rounded-md">
-        <h2 className="text-lg font-medium">Seleções Atuais:</h2>
-        <ul className="mt-2 list-disc list-inside">
-          <li>
-            <strong>Categorias:</strong>{" "}
-            {selectedSubjects.length
-              ? selectedSubjects.join(", ")
-              : "Nenhum item selecionado"}
-          </li>
-          <li>
-            <strong>Anos:</strong>{" "}
-            {selectedYears.length
-              ? selectedYears.join(", ")
-              : "Nenhum ano selecionado"}
-          </li>
-          <li>
-            <strong>Dificuldades:</strong>{" "}
-            {selectedDifficulties.length
-              ? selectedDifficulties.join(", ")
-              : "Nenhuma dificuldade selecionada"}
-          </li>
-        </ul>
+      <NestedCheckbox
+        data={subjectData}
+        setSelectedNode={setSelectedSubjects}
+      />
+      <div className="mt-5">
+        <Button
+          onClick={() =>
+            router.push(
+              `/qb/questions?categories=${parsedSubjects.join(
+                ","
+              )}&difficulty=${selectedDifficulties.join(
+                ","
+              )}&year=${selectedYears.join(",")}`
+            )
+          }
+          className="w-full bg-green-600 hover:bg-green-700"
+          type="submit"
+          disabled={
+            selectedDifficulties.length === 0 ||
+            selectedYears.length === 0 ||
+            parsedSubjects.length === 0
+          }
+        >
+          Começar
+        </Button>
       </div>
     </div>
   );

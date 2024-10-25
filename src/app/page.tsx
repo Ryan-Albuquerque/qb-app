@@ -45,7 +45,7 @@ export default function Home() {
                 através da prática.
               </p>
               <p className="text-lg font-semibold">A partir de R$99,90/mês</p>
-              <Button className="mt-6 bg-green-500 text-white w-full py-6">
+              <Button className="mt-6 bg-green-500 text-white w-full py-6 font-semibold tracking-widest text-md">
                 Garantir!
               </Button>
             </Card>

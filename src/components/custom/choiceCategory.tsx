@@ -71,12 +71,12 @@ const findNode = (
 
 interface NestedCheckboxProps {
   data: Record<string, unknown>;
-  setSelected: (value: string[]) => void;
+  setSelectedNode: (value: Node[]) => void;
 }
 
 export const NestedCheckbox: React.FC<NestedCheckboxProps> = ({
   data,
-  setSelected,
+  setSelectedNode,
 }) => {
   const initialNodes = transform(data);
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
@@ -94,6 +94,7 @@ export const NestedCheckbox: React.FC<NestedCheckboxProps> = ({
       toggleDescendants(node, checked);
       updateAncestors(node);
       setNodes(cloneDeep(nodes));
+      setSelectedNode(nodes);
     }
   };
 
@@ -104,46 +105,6 @@ export const NestedCheckbox: React.FC<NestedCheckboxProps> = ({
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value.toLowerCase());
-  };
-
-  const collectHighestLevelSelections = () => {
-    const highestLevels: string[] = [];
-
-    const isNodeValidForSelection = (node: Node) => {
-      let current: Node | null = node;
-      while (current) {
-        if (highestLevels.includes(current.label)) return false;
-        current = current.parent;
-      }
-      return true;
-    };
-
-    const traverseNodes = (nodes: Node[]) => {
-      nodes.forEach((node) => {
-        if (node.checked) {
-          const allChildrenChecked = node.childrenNodes.every(
-            (child) => child.checked
-          );
-
-          if (isNodeValidForSelection(node)) {
-            highestLevels.push(node.label);
-          }
-
-          if (!allChildrenChecked) {
-            node.childrenNodes.forEach((child) => {
-              if (child.checked && !highestLevels.includes(child.label)) {
-                highestLevels.push(child.label);
-              }
-            });
-          }
-        }
-        traverseNodes(node.childrenNodes);
-      });
-    };
-
-    traverseNodes(nodes);
-    setSelected(highestLevels);
-    return highestLevels;
   };
 
   const filteredNodes = (nodes: Node[], searchQuery: string): Node[] => {
@@ -178,12 +139,6 @@ export const NestedCheckbox: React.FC<NestedCheckboxProps> = ({
         onBoxChecked={handleBoxChecked}
         onToggleCategory={toggleCategory}
       />
-      <button
-        onClick={() => collectHighestLevelSelections()}
-        className="mt-8 py-3 w-full px-6 bg-green-600 text-white rounded cursor-pointer hover:bg-green-700"
-      >
-        Começar!
-      </button>
     </>
   );
 };
