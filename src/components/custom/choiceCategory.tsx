@@ -1,8 +1,7 @@
-'use client'
-import React, { useState } from 'react';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from "lodash";
+import { useState } from "react";
 
-// Define the shape of the nested nodes
+// Transform the data into a nested structure of nodes
 interface Node {
   label: string;
   checked: boolean;
@@ -10,22 +9,23 @@ interface Node {
   parent: Node | null;
   isOpen: boolean;
 }
-
-// Transform the data into a nested structure of nodes
-const transform = (data: Record<string, unknown>, parent: Node | null = null): Node[] => {
+const transform = (
+  data: Record<string, unknown>,
+  parent: Node | null = null
+): Node[] => {
   return Object.keys(data).map((key) => {
     const value = data[key] as Record<string, unknown>;
     const node: Node = {
       label: key,
-      checked: typeof value === 'boolean' ? value : false,
+      checked: typeof value === "boolean" ? value : false,
       childrenNodes: [],
       parent,
-      isOpen: true,
+      isOpen: true, // For expand/collapse behavior
     };
 
-    if (typeof value !== 'boolean') {
+    if (typeof value !== "boolean") {
       node.childrenNodes = transform(value, node);
-      node.checked = node.childrenNodes.every(child => child.checked);
+      node.checked = node.childrenNodes.every((child) => child.checked);
     }
 
     return node;
@@ -36,42 +36,56 @@ const transform = (data: Record<string, unknown>, parent: Node | null = null): N
 const updateAncestors = (node: Node): void => {
   if (!node.parent) return;
 
-  node.parent.checked = node.parent.childrenNodes.every(child => child.checked);
+  node.parent.checked = node.parent.childrenNodes.every(
+    (child) => child.checked
+  );
   updateAncestors(node.parent);
 };
 
 // Toggle all descendant nodes when a parent node is toggled
 const toggleDescendants = (node: Node, checked: boolean): void => {
   node.checked = checked;
-  node.childrenNodes.forEach(child => toggleDescendants(child, checked));
+  node.childrenNodes.forEach((child) => toggleDescendants(child, checked));
 };
 
 // Find a node by label and its ancestors
-const findNode = (nodes: Node[], label: string, ancestors: string[]): Node | undefined => {
+const findNode = (
+  nodes: Node[],
+  label: string,
+  ancestors: string[]
+): Node | undefined => {
   let currentNode: Node | undefined;
 
   if (ancestors.length === 0) {
-    return nodes.find(node => node.label === label);
+    return nodes.find((node) => node.label === label);
   }
 
   for (const ancestor of ancestors) {
-    currentNode = (currentNode?.childrenNodes || nodes).find(n => n.label === ancestor);
+    currentNode = (currentNode?.childrenNodes || nodes).find(
+      (n) => n.label === ancestor
+    );
   }
 
-  return currentNode?.childrenNodes.find(n => n.label === label);
+  return currentNode?.childrenNodes.find((n) => n.label === label);
 };
 
 interface NestedCheckboxProps {
   data: Record<string, unknown>;
-  searchQuery: string;
-  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  setSelected: (value: string[]) => void;
 }
 
-const NestedCheckbox: React.FC<NestedCheckboxProps> = ({ data, searchQuery, setSearchQuery }) => {
+export const NestedCheckbox: React.FC<NestedCheckboxProps> = ({
+  data,
+  setSelected,
+}) => {
   const initialNodes = transform(data);
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const handleBoxChecked = (e: React.ChangeEvent<HTMLInputElement>, ancestors: string[]) => {
+  const handleBoxChecked = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    ancestors: string[]
+  ) => {
     const checked = e.currentTarget.checked;
     const node = findNode(nodes, e.currentTarget.value, ancestors);
 
@@ -88,22 +102,88 @@ const NestedCheckbox: React.FC<NestedCheckboxProps> = ({ data, searchQuery, setS
     setNodes(cloneDeep(nodes));
   };
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value.toLowerCase());
+  };
+
+  const collectHighestLevelSelections = () => {
+    const highestLevels: string[] = [];
+
+    const isNodeValidForSelection = (node: Node) => {
+      let current: Node | null = node;
+      while (current) {
+        if (highestLevels.includes(current.label)) return false;
+        current = current.parent;
+      }
+      return true;
+    };
+
+    const traverseNodes = (nodes: Node[]) => {
+      nodes.forEach((node) => {
+        if (node.checked) {
+          const allChildrenChecked = node.childrenNodes.every(
+            (child) => child.checked
+          );
+
+          if (isNodeValidForSelection(node)) {
+            highestLevels.push(node.label);
+          }
+
+          if (!allChildrenChecked) {
+            node.childrenNodes.forEach((child) => {
+              if (child.checked && !highestLevels.includes(child.label)) {
+                highestLevels.push(child.label);
+              }
+            });
+          }
+        }
+        traverseNodes(node.childrenNodes);
+      });
+    };
+
+    traverseNodes(nodes);
+    setSelected(highestLevels);
+    return highestLevels;
+  };
+
+  const filteredNodes = (nodes: Node[], searchQuery: string): Node[] => {
+    return nodes.reduce<Node[]>((acc, node) => {
+      const isMatch = node.label.toLowerCase().includes(searchQuery);
+      const childrenMatches = filteredNodes(node.childrenNodes, searchQuery);
+      const hasMatches = isMatch || childrenMatches.length > 0;
+
+      if (hasMatches) {
+        acc.push({
+          ...node,
+          childrenNodes: childrenMatches,
+          isOpen: true, // Keep the category open if it matches
+        });
+      }
+      return acc;
+    }, []);
+  };
+
   return (
     <>
       <input
         type="text"
-        placeholder="Search subjects..."
+        placeholder="Busque as categorias..."
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value.toLowerCase())}
-        className="mb-4 p-2 border rounded w-full"
+        onChange={handleSearch}
+        className="mb-5 p-3 rounded-md w-full"
       />
       <NestedCheckboxHelper
-        nodes={nodes}
+        nodes={filteredNodes(nodes, searchQuery)}
         ancestors={[]}
         onBoxChecked={handleBoxChecked}
         onToggleCategory={toggleCategory}
-        searchQuery={searchQuery}
       />
+      <button
+        onClick={() => collectHighestLevelSelections()}
+        className="mt-8 py-3 w-full px-6 bg-green-600 text-white rounded cursor-pointer hover:bg-green-700"
+      >
+        Começar!
+      </button>
     </>
   );
 };
@@ -111,9 +191,11 @@ const NestedCheckbox: React.FC<NestedCheckboxProps> = ({ data, searchQuery, setS
 interface NestedCheckboxHelperProps {
   nodes: Node[];
   ancestors: string[];
-  onBoxChecked: (e: React.ChangeEvent<HTMLInputElement>, ancestors: string[]) => void;
+  onBoxChecked: (
+    e: React.ChangeEvent<HTMLInputElement>,
+    ancestors: string[]
+  ) => void;
   onToggleCategory: (node: Node) => void;
-  searchQuery: string;
 }
 
 const NestedCheckboxHelper: React.FC<NestedCheckboxHelperProps> = ({
@@ -121,49 +203,57 @@ const NestedCheckboxHelper: React.FC<NestedCheckboxHelperProps> = ({
   ancestors,
   onBoxChecked,
   onToggleCategory,
-  searchQuery,
 }) => {
-  const prefix = ancestors.join('.');
+  const prefix = ancestors.join(".");
   return (
-    <ul className="list-disc pl-5">
-      {nodes
-        .filter(({ label }) => label.toLowerCase().includes(searchQuery))
-        .map(({ label, checked, childrenNodes, isOpen }) => {
-          const id = `${prefix}.${label}`;
-          return (
-            <li key={id} className="mb-2">
-              <div className="flex items-center">
-                {childrenNodes.length > 0 && (
-                  <button
-                    onClick={() => onToggleCategory({ label, childrenNodes, checked, parent: null, isOpen })}
-                    className="mr-2 bg-transparent border-0 cursor-pointer text-xl"
-                  >
-                    {isOpen ? '-' : '+'}
-                  </button>
-                )}
-                <input
-                  type="checkbox"
-                  name={id}
-                  value={label}
-                  checked={checked}
-                  onChange={(e) => onBoxChecked(e, ancestors)}
-                />
-                <label htmlFor={id} className="ml-2">{label}</label>
-              </div>
-              {isOpen && childrenNodes.length > 0 && (
-                <NestedCheckboxHelper
-                  nodes={childrenNodes}
-                  ancestors={[...ancestors, label]}
-                  onBoxChecked={onBoxChecked}
-                  onToggleCategory={onToggleCategory}
-                  searchQuery={searchQuery}
-                />
+    <ul style={{ listStyleType: "none", paddingLeft: "20px" }}>
+      {nodes.map(({ label, checked, childrenNodes, isOpen }) => {
+        const id = `${prefix}.${label}`;
+        return (
+          <li key={id} style={{ marginBottom: "5px" }}>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              {childrenNodes.length > 0 && (
+                <button
+                  onClick={() =>
+                    onToggleCategory({
+                      label,
+                      childrenNodes,
+                      checked,
+                      parent: null,
+                      isOpen,
+                    })
+                  }
+                  style={{
+                    marginRight: "5px",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "16px",
+                  }}
+                ></button>
               )}
-            </li>
-          );
-        })}
+              <input
+                type="checkbox"
+                name={id}
+                value={label}
+                checked={checked}
+                onChange={(e) => onBoxChecked(e, ancestors)}
+              />
+              <label htmlFor={id} style={{ marginLeft: "5px" }}>
+                {label}
+              </label>
+            </div>
+            {isOpen && childrenNodes.length > 0 && (
+              <NestedCheckboxHelper
+                nodes={childrenNodes}
+                ancestors={[...ancestors, label]}
+                onBoxChecked={onBoxChecked}
+                onToggleCategory={onToggleCategory}
+              />
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 };
-
-export default NestedCheckbox;
