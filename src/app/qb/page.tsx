@@ -40,7 +40,7 @@ export default function HomePage() {
             Pronto para melhorar sua nota da escola ou do vestibular?
           </h2>
           <p className="text-lg text-gray-600 mb-8">
-            Comece resolvendo questões e monitorar seu progresso!
+            Comece resolvendo questões e monitore seu progresso!
           </p>
           <Button
             className="bg-green-500 hover:bg-green-700 text-white p-6 rounded-lg text-lg"
