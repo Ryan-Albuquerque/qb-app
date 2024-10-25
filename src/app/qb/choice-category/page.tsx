@@ -199,7 +199,7 @@ export default function Categories() {
         <Button
           onClick={() =>
             router.push(
-              `/qb/questions?categories=${parsedSubjects.join(
+              `/qb/session?categories=${parsedSubjects.join(
                 ","
               )}&difficulty=${selectedDifficulties.join(
                 ","
