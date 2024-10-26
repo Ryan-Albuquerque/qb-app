@@ -122,7 +122,7 @@ export default function Categories() {
   };
 
   return (
-    <div className="m-3 p-4 border-2 rounded-md shadow-lg">
+    <div className="m-3 p-4 border-2 rounded-md shadow-lg w-[85%] justify-self-center">
       <h1 className="text-center my-6 text-2xl font-semibold">Categorias</h1>
 
       <p className="text-gray-600 text-center mb-5">
