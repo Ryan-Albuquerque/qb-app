@@ -15,10 +15,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import callLoginService from "@/lib/services/auth/login";
+import { useToast } from "@/hooks/use-toast";
 
 const cpfPattern = /^\d{11}$/;
 
 export default function Login() {
+  const { toast } = useToast();
   const formSchema = z.object({
     document: z
       .string({ required_error: "CPF é obrigatório" })
@@ -45,8 +48,23 @@ export default function Login() {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log("Logging in with:", data);
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    console.log("Start login calls");
+    const response = await callLoginService(data);
+    if (response.error) {
+      console.error(response.error);
+      return toast({
+        variant: "destructive",
+        title: response.error,
+        duration: 5000,
+      });
+    }
+
+    toast({
+      title: "Login realizado com sucesso",
+      variant: "success",
+      duration: 5000,
+    });
     router.push("/qb");
   };
 
@@ -84,7 +102,11 @@ export default function Login() {
                 <FormItem>
                   <FormLabel>Senha</FormLabel>
                   <FormControl>
-                    <Input placeholder="Insira sua senha" {...field} />
+                    <Input
+                      placeholder="Insira sua senha"
+                      type="password"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
