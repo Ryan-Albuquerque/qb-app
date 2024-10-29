@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import callLoginService from "@/lib/services/auth/login";
+import { callLoginService } from "@/lib/services/auth";
 import { useToast } from "@/hooks/use-toast";
 
 const cpfPattern = /^\d{11}$/;

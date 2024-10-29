@@ -1,41 +1,105 @@
 "use client";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { callRegisterService } from "@/lib/services/auth";
 
-type FormValues = {
-  document: string; // CPF
-  name: string; // Nome
-  email: string; // Email
-  phone: string; // Número de telefone
-  password: string; // Senha
-  confirmPassword: string; // Confirmar Senha
-};
+const cpfPattern = /^\d{11}$/;
 
-// Padrão de validação para CPF (apenas números)
-const cpfPattern = /^\d{11}$/; // Apenas 11 dígitos
-
-// Padrão de validação de email
-const emailPattern = /^\S+@\S+\.\S+$/;
-
-// Padrão de validação de telefone (formato brasileiro)
-const phonePattern = /^\d{10,11}$/; // 10 ou 11 dígitos
+const phonePattern = /^\d{10,11}$/;
 
 export default function Register() {
   const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    getValues,
-  } = useForm<FormValues>();
+  const { toast } = useToast();
+  const formSchema = z
+    .object({
+      document: z
+        .string({ required_error: "CPF é obrigatório" })
+        .max(11, {
+          message: "Valor máximo permitido é de 11 números",
+        })
+        .regex(cpfPattern, {
+          message: "CPF deve ser válido e informado apenas números",
+        }),
+      password: z
+        .string({
+          required_error: "Senha é obrigatória",
+        })
+        .min(8, {
+          message: "Senha deve ser ter no mínimo 8 caracteres",
+        }),
+      confirmPassword: z.string({
+        required_error: "Confirmação de Senha é obrigatória",
+      }),
+      phone: z
+        .string({
+          required_error: "Telefone é obrigatório",
+        })
+        .regex(phonePattern, {
+          message: "Telefone deve ser no formato válido",
+        }),
+      email: z
+        .string({
+          required_error: "Email é obrigatório",
+        })
+        .email({
+          message: "Email deve ser válido",
+        }),
+      name: z
+        .string({
+          required_error: "Nome é obrigatório",
+        })
+        .min(2, {
+          message: "Deve ter mais de dois caracteres",
+        }),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      path: ["confirmPassword"],
+      message: "As senhas devem ser iguais",
+    });
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      confirmPassword: "",
+      document: "",
+      email: "",
+      name: "",
+      password: "",
+      phone: "",
+    },
+  });
 
-  // Função que é executada ao enviar o formulário
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
-    console.log("Registrando com:", data);
-    // Prosseguir com a lógica de registro, como uma chamada de API
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    console.log("Start register calls");
+    const response = await callRegisterService(data);
+    if (response.error) {
+      console.error(response.error);
+      return toast({
+        variant: "destructive",
+        title: response.error,
+        duration: 5000,
+      });
+    }
+
+    toast({
+      title: "Cadastro realizado com sucesso",
+      variant: "success",
+      duration: 5000,
+    });
     router.push("/plan/try-upgrade-plan");
   };
 
@@ -43,192 +107,116 @@ export default function Register() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
       <Card className="max-w-md w-full bg-white p-6 shadow-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Registrar</h2>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Campo de Documento (CPF) */}
-          <div className="mb-4">
-            <label
-              htmlFor="document"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              CPF
-            </label>
-            <input
-              type="text"
-              id="document"
-              maxLength={11} // Apenas 11 dígitos permitidos
-              {...register("document", {
-                required: "O CPF é obrigatório",
-                pattern: {
-                  value: cpfPattern,
-                  message: "Formato de CPF inválido. Use 11 dígitos.",
-                },
-              })}
-              className={`w-full px-4 py-2 border ${
-                errors.document ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none focus:border-blue-500`}
-              placeholder="Digite seu CPF"
-            />
-            {errors.document && (
-              <p className="text-red-500 text-sm mt-2">
-                {errors.document.message}
-              </p>
-            )}
-          </div>
-
-          {/* Campo de Nome */}
-          <div className="mb-4">
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Nome
-            </label>
-            <input
-              type="text"
-              id="name"
-              {...register("name", { required: "O nome é obrigatório" })}
-              className={`w-full px-4 py-2 border ${
-                errors.name ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none focus:border-blue-500`}
-              placeholder="Digite seu nome"
-            />
-            {errors.name && (
-              <p className="text-red-500 text-sm mt-2">{errors.name.message}</p>
-            )}
-          </div>
-
-          {/* Campo de Email */}
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              {...register("email", {
-                required: "O email é obrigatório",
-                pattern: {
-                  value: emailPattern,
-                  message: "Formato de email inválido",
-                },
-              })}
-              className={`w-full px-4 py-2 border ${
-                errors.email ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none focus:border-blue-500`}
-              placeholder="Digite seu email"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-2">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          {/* Campo de Telefone */}
-          <div className="mb-4">
-            <label
-              htmlFor="phone"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Telefone
-            </label>
-            <input
-              type="text"
-              id="phone"
-              maxLength={11} // Comprimento máximo para número de telefone brasileiro
-              {...register("phone", {
-                required: "O número de telefone é obrigatório",
-                pattern: {
-                  value: phonePattern,
-                  message:
-                    "Formato de telefone inválido. Use 10 ou 11 dígitos.",
-                },
-              })}
-              className={`w-full px-4 py-2 border ${
-                errors.phone ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none focus:border-blue-500`}
-              placeholder="Digite seu número de telefone"
-            />
-            {errors.phone && (
-              <p className="text-red-500 text-sm mt-2">
-                {errors.phone.message}
-              </p>
-            )}
-          </div>
-
-          {/* Campo de Senha */}
-          <div className="mb-4">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Senha
-            </label>
-            <input
-              type="password"
-              id="password"
-              {...register("password", {
-                required: "A senha é obrigatória",
-                minLength: {
-                  value: 8,
-                  message: "A senha deve ter pelo menos 8 caracteres",
-                },
-              })}
-              className={`w-full px-4 py-2 border ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none focus:border-blue-500`}
-              placeholder="Digite sua senha"
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-2">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          {/* Campo de Confirmar Senha */}
-          <div className="mb-4">
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Confirmar Senha
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              {...register("confirmPassword", {
-                required: "Por favor, confirme sua senha",
-                validate: (value) => {
-                  const { password } = getValues(); // Acessar o valor do campo senha
-                  return value === password || "As senhas não correspondem";
-                },
-              })}
-              className={`w-full px-4 py-2 border ${
-                errors.confirmPassword ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none focus:border-blue-500`}
-              placeholder="Confirme sua senha"
-            />
-            {errors.confirmPassword && (
-              <p className="text-red-500 text-sm mt-2">
-                {errors.confirmPassword.message}
-              </p>
-            )}
-          </div>
-
-          {/* Botão de Enviar */}
-          <Button
-            type="submit"
-            className="bg-green-500 hover:bg-green-700 text-white w-full py-2 rounded-md"
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-6"
           >
-            Registrar
-          </Button>
-        </form>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Insira seu Nome" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="document"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Documento (CPF)</FormLabel>
+                  <FormControl>
+                    <Input
+                      maxLength={11}
+                      placeholder="Insira seu CPF"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Insira seu email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefone</FormLabel>
+                  <FormControl>
+                    <Input
+                      maxLength={11}
+                      placeholder="Insira seu telefone"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Senha</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Insira sua senha"
+                      type="password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        {/* Links Adicionais */}
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirme sua Senha</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Insira sua confirmação de senha"
+                      type="password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="submit"
+              className="bg-green-500 hover:bg-green-700 text-white w-full py-2 rounded-md"
+            >
+              Registrar
+            </Button>
+          </form>
+        </Form>
+
         <div className="mt-4 text-center">
           <Link
             href="/auth/login"
