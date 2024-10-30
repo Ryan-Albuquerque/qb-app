@@ -21,7 +21,7 @@ export default function HomePage() {
           <Button
             className="bg-green-500 hover:bg-green-700 text-white p-6 rounded-lg text-lg"
             onClick={() => {
-              router.push("/qb/choice-category");
+              router.push("/qb/session/new");
             }}
           >
             Começar agora

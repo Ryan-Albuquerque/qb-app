@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import getConfig from "next/config";
+import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   const { serverRuntimeConfig } = getConfig();
@@ -27,6 +28,14 @@ export async function POST(request: Request) {
     : {
         message: result.message,
       };
+
+  cookies().set("token", result?.result?.token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: true,
+    maxAge: 60 * 60 * 24,
+    path: "/",
+  });
   return Response.json(json, {
     status: loginRequest.status,
   });

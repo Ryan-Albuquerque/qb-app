@@ -17,10 +17,12 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { callLoginService } from "@/lib/services/auth";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
+import AlertBanner from "@/components/custom/AlertBanner";
 
 const cpfPattern = /^\d{11}$/;
 
-export default function Login() {
+export default function Login(props: any) {
   const { toast } = useToast();
   const formSchema = z.object({
     document: z
@@ -68,73 +70,96 @@ export default function Login() {
     router.push("/qb");
   };
 
+  const [showAlert, setShowAlert] = useState(false);
+
+  useEffect(() => {
+    if (props?.searchParams?.error) {
+      setShowAlert(true);
+      const timer = setTimeout(() => {
+        setShowAlert(false);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [props.searchParams.error]);
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
-      <Card className="max-w-md w-full bg-white p-6 shadow-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+    <>
+      <div className="min-h-screen bg-gray-100 ">
+        {showAlert && (
+          <AlertBanner
+            error={props.searchParams.error}
+            setShowAlert={setShowAlert}
+          />
+        )}
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
+          <Card className="max-w-md w-full bg-white p-6 shadow-md">
+            <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
 
-        <Form {...form}>
-          <form
-            className="flex gap-6 flex-col"
-            onSubmit={form.handleSubmit(onSubmit)}
-          >
-            <FormField
-              control={form.control}
-              name="document"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Documento (CPF)</FormLabel>
-                  <FormControl>
-                    <Input
-                      maxLength={11}
-                      placeholder="Insira seu CPF"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Senha</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Insira sua senha"
-                      type="password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              type="submit"
-              className="bg-green-600 hover:bg-green-900 text-white font-semibold w-full py-3 rounded-md"
-            >
-              Login
-            </Button>
-          </form>
-        </Form>
+            <Form {...form}>
+              <form
+                className="flex gap-6 flex-col"
+                onSubmit={form.handleSubmit(onSubmit)}
+              >
+                <FormField
+                  control={form.control}
+                  name="document"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Documento (CPF)</FormLabel>
+                      <FormControl>
+                        <Input
+                          maxLength={11}
+                          placeholder="Insira seu CPF"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Senha</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Insira sua senha"
+                          type="password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="submit"
+                  className="bg-green-600 hover:bg-green-900 text-white font-semibold w-full py-3 rounded-md"
+                >
+                  Login
+                </Button>
+              </form>
+            </Form>
 
-        <div className="mt-4 flex justify-between items-center">
-          <Link
-            href="/auth/forgot-password"
-            className="text-sm text-green-400 hover:underline hover:text-green-400"
-          >
-            Esqueci minha senha
-          </Link>
-          <Link href="/auth/register">
-            <Button className="bg-green-400 hover:bg-green-700 text-white font-semibold py-2 rounded-md">
-              Criar conta nova
-            </Button>
-          </Link>
+            <div className="mt-4 flex justify-between items-center">
+              <Link
+                href="/auth/forgot-password"
+                className="text-sm text-green-400 hover:underline hover:text-green-400"
+              >
+                Esqueci minha senha
+              </Link>
+              <Link href="/auth/register">
+                <Button className="bg-green-400 hover:bg-green-700 text-white font-semibold py-2 rounded-md">
+                  Criar conta nova
+                </Button>
+              </Link>
+            </div>
+          </Card>
         </div>
-      </Card>
-    </div>
+      </div>
+    </>
   );
 }

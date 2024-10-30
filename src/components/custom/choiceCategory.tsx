@@ -1,7 +1,7 @@
 import { cloneDeep } from "lodash";
 import { useState } from "react";
+import { Input } from "../ui/input";
 
-// Transform the data into a nested structure of nodes
 interface Node {
   label: string;
   checked: boolean;
@@ -20,7 +20,7 @@ const transform = (
       checked: typeof value === "boolean" ? value : false,
       childrenNodes: [],
       parent,
-      isOpen: true, // For expand/collapse behavior
+      isOpen: true,
     };
 
     if (typeof value !== "boolean") {
@@ -32,7 +32,6 @@ const transform = (
   });
 };
 
-// Update ancestor nodes when a child node is toggled
 const updateAncestors = (node: Node): void => {
   if (!node.parent) return;
 
@@ -42,13 +41,11 @@ const updateAncestors = (node: Node): void => {
   updateAncestors(node.parent);
 };
 
-// Toggle all descendant nodes when a parent node is toggled
 const toggleDescendants = (node: Node, checked: boolean): void => {
   node.checked = checked;
   node.childrenNodes.forEach((child) => toggleDescendants(child, checked));
 };
 
-// Find a node by label and its ancestors
 const findNode = (
   nodes: Node[],
   label: string,
@@ -117,7 +114,7 @@ export const NestedCheckbox: React.FC<NestedCheckboxProps> = ({
         acc.push({
           ...node,
           childrenNodes: childrenMatches,
-          isOpen: true, // Keep the category open if it matches
+          isOpen: true,
         });
       }
       return acc;
@@ -126,7 +123,7 @@ export const NestedCheckbox: React.FC<NestedCheckboxProps> = ({
 
   return (
     <>
-      <input
+      <Input
         type="text"
         placeholder="Busque as categorias..."
         value={searchQuery}
@@ -161,40 +158,21 @@ const NestedCheckboxHelper: React.FC<NestedCheckboxHelperProps> = ({
 }) => {
   const prefix = ancestors.join(".");
   return (
-    <ul style={{ listStyleType: "none", paddingLeft: "20px" }}>
+    <ul className="list-none pl-5">
       {nodes.map(({ label, checked, childrenNodes, isOpen }) => {
         const id = `${prefix}.${label}`;
         return (
-          <li key={id} style={{ marginBottom: "5px" }}>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              {childrenNodes.length > 0 && (
-                <button
-                  onClick={() =>
-                    onToggleCategory({
-                      label,
-                      childrenNodes,
-                      checked,
-                      parent: null,
-                      isOpen,
-                    })
-                  }
-                  style={{
-                    marginRight: "5px",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "16px",
-                  }}
-                ></button>
-              )}
+          <li key={id} className="mb-1">
+            <div className="flex items-center">
               <input
                 type="checkbox"
                 name={id}
                 value={label}
                 checked={checked}
                 onChange={(e) => onBoxChecked(e, ancestors)}
+                className="form-checkbox"
               />
-              <label htmlFor={id} style={{ marginLeft: "5px" }}>
+              <label htmlFor={id} className="ml-1">
                 {label}
               </label>
             </div>

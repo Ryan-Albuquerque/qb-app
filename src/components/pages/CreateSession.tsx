@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { NestedCheckbox } from "@/components/custom/choiceCategory";
+import { NestedCheckbox } from "@/components/custom/ChoiceCategory";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { Card } from "@/components/ui/card";
 
 interface Node {
   label: string;
@@ -18,51 +19,24 @@ interface Node {
   isOpen: boolean;
 }
 
-const subjectData: Record<string, unknown> = {
-  Science: {
-    Physics: {
-      "Quantum Mechanics": {
-        "Quantum Field Theory": false,
-        "String Theory": false,
-      },
-      "Classical Mechanics": false,
-    },
-    Chemistry: {
-      "Organic Chemistry": false,
-      "Inorganic Chemistry": false,
-    },
-    Biology: false,
-  },
-  Math: {
-    Algebra: false,
-    Geometry: false,
-    Calculus: false,
-  },
-  Humanities: {
-    History: {
-      "World History": false,
-      "American History": false,
-    },
-    Literature: false,
-    Philosophy: false,
-  },
-};
-
-// Definindo anos e dificuldades para os filtros
 const availableYears = [
   new Date().getFullYear() - 2,
   new Date().getFullYear() - 1,
   new Date().getFullYear(),
 ];
-const difficulties = ["Fácil", "Médio", "Difícil"];
+const difficulties = ["Fácil", "Médio", "Difícil", "Não definida"];
 
-export default function Categories() {
+export default function CreateSession({
+  subjectData,
+}: {
+  subjectData: Record<string, unknown>;
+}) {
   const [selectedSubjects, setSelectedSubjects] = useState<Node[]>([]);
-  const [selectedYears, setSelectedYears] = useState<number[]>([]); // Pré-selecionando os últimos 3 anos
+  const [selectedYears, setSelectedYears] = useState<number[]>([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState<string[]>(
     []
   );
-  const [parsedSubjects, setParsedSubjects] = useState<string[]>([]); // Pré-selecion
+  const [parsedSubjects, setParsedSubjects] = useState<string[]>([]);
 
   const router = useRouter();
 
@@ -122,14 +96,11 @@ export default function Categories() {
   };
 
   return (
-    <div className="m-3 p-4 border-2 rounded-md shadow-lg w-[85%] justify-self-center">
-      <h1 className="text-center my-6 text-2xl font-semibold">Categorias</h1>
+    <Card className="m-3 p-4 border-2 rounded-lg shadow-lg md:w-[80%] w-[90%] justify-self-center">
+      <h1 className="text-center my-6 text-2xl font-semibold">
+        Monte sua sessão
+      </h1>
 
-      <p className="text-gray-600 text-center mb-5">
-        Configure seus exercícios
-      </p>
-
-      {/* Filtro de Anos com Dropdown Multiseleção */}
       <div className="mb-5">
         <h2>Filtrar por Ano</h2>
         <DropdownMenu>
@@ -159,7 +130,6 @@ export default function Categories() {
         </DropdownMenu>
       </div>
 
-      {/* Filtro de Dificuldade com Dropdown Multiseleção */}
       <div className="mb-5">
         <h2>Filtrar por Dificuldade</h2>
         <DropdownMenu>
@@ -190,7 +160,6 @@ export default function Categories() {
         </DropdownMenu>
       </div>
 
-      {/* Renderiza o componente NestedCheckbox */}
       <NestedCheckbox
         data={subjectData}
         setSelectedNode={setSelectedSubjects}
@@ -217,6 +186,6 @@ export default function Categories() {
           Começar
         </Button>
       </div>
-    </div>
+    </Card>
   );
 }
