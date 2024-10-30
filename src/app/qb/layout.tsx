@@ -1,3 +1,12 @@
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import { LogOutIcon, UserRound } from "lucide-react";
 import Link from "next/link";
 
 export default function QBLayout({
@@ -15,14 +24,24 @@ export default function QBLayout({
                 QB
               </Link>
             </div>
-            <div className="flex space-x-4">
-              <Link
-                href="/qb/profile"
-                className="text-gray-800 hover:text-green-600"
-              >
-                Perfil
-              </Link>
-            </div>
+            <Menubar>
+              <MenubarMenu>
+                <MenubarTrigger className="cursor-pointer">
+                  <UserRound />
+                </MenubarTrigger>
+                <MenubarContent>
+                  <MenubarItem className="hover:bg-gray-100">
+                    Perfil
+                  </MenubarItem>
+                  <MenubarItem className="text-red-500 hover:bg-red-700 hover:text-white ">
+                    Sair{" "}
+                    <MenubarShortcut>
+                      <LogOutIcon className="text-red-500 font-semibold " />
+                    </MenubarShortcut>
+                  </MenubarItem>
+                </MenubarContent>
+              </MenubarMenu>
+            </Menubar>
           </div>
         </div>
       </nav>
