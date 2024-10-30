@@ -20,7 +20,7 @@ export default function QBLayout({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-green-600">
+              <Link href="/qb" className="text-2xl font-bold text-green-600">
                 QB
               </Link>
             </div>
@@ -30,9 +30,11 @@ export default function QBLayout({
                   <UserRound />
                 </MenubarTrigger>
                 <MenubarContent>
-                  <MenubarItem className="hover:bg-gray-100">
-                    Perfil
-                  </MenubarItem>
+                  <Link href={"/qb/profile"}>
+                    <MenubarItem className="hover:bg-gray-100">
+                      Perfil
+                    </MenubarItem>
+                  </Link>
                   <MenubarItem className="text-red-500 hover:bg-red-700 hover:text-white ">
                     Sair{" "}
                     <MenubarShortcut>
