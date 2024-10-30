@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const publicPaths = ["/auth/login", "/auth/register"];
+const publicPaths = ["/auth/login", "/auth/register", "/"];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
 
-  const isPublicPath = publicPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
+  const isPublicPath = publicPaths.some(
+    (path) => request.nextUrl.pathname == path
   );
 
   if (!isPublicPath && !token) {
-    const loginUrl = new URL("/auth/login?error=login_error", request.url);
+    const loginUrl = new URL(
+      "/auth/login?error=Faça Login Novamente",
+      request.url
+    );
     return NextResponse.redirect(loginUrl);
   }
 

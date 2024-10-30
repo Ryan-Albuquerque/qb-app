@@ -35,12 +35,14 @@ export default function QBLayout({
                       Perfil
                     </MenubarItem>
                   </Link>
-                  <MenubarItem className="text-red-500 hover:bg-red-700 hover:text-white ">
-                    Sair{" "}
-                    <MenubarShortcut>
-                      <LogOutIcon className="text-red-500 font-semibold " />
-                    </MenubarShortcut>
-                  </MenubarItem>
+                  <Link href={"/api/auth/logout"}>
+                    <MenubarItem className="text-red-500 hover:bg-red-700 hover:text-white cursor-pointer">
+                      Sair{" "}
+                      <MenubarShortcut>
+                        <LogOutIcon className="text-red-500 font-semibold " />
+                      </MenubarShortcut>
+                    </MenubarItem>
+                  </Link>
                 </MenubarContent>
               </MenubarMenu>
             </Menubar>
