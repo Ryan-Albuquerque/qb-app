@@ -1,4 +1,3 @@
-// src/app/home/page.tsx
 "use client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ export default function HomePage() {
     <>
       <CardCarousel />
 
-      {/* Get Started Button Section */}
       <section className="mt-12 w-full text-center">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-gray-800 mb-4">
@@ -31,7 +29,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Last Sessions of Resolution Questions Section */}
       <section className="mt-16 w-full">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
@@ -39,7 +36,6 @@ export default function HomePage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Example Session Cards */}
             <Card className="bg-white p-6 shadow-lg rounded-md">
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
                 Session 1: Math Practice

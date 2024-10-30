@@ -30,7 +30,12 @@ const installmentsLimits: Record<string, number> = {
   "1-ano": 12, // 1-12 Parcelas para Plano Anual
 };
 
-export default function Payment() {
+export default function Payment(props: {
+  searchParams: { plan: string; desired: string };
+}) {
+  const currentPlan = props?.searchParams?.plan;
+  const desiredPlan = props?.searchParams?.desired;
+
   const router = useRouter();
   const {
     register,
@@ -46,6 +51,9 @@ export default function Payment() {
     console.log("Processando pagamento:", data);
     // Aqui você lidaria com a lógica de pagamento (por exemplo, chamada API)
 
+    if (props.searchParams) {
+      return router.push("/profile");
+    }
     router.push("/qb");
   };
 
